@@ -123,7 +123,13 @@ document.getElementById('settings-smooth-scroll-duration').addEventListener('inp
 	}
 });
 // Message Handling
-['combine-messages', 'format-urls', 'shorten-urls', 'unfurl-youtube', 'show-subscriptions', 'show-bits', 'show-mod-actions'].forEach(configureToggler);
+['combine-messages-left', 'format-urls', 'shorten-urls', 'unfurl-youtube', 'show-subscriptions', 'show-bits', 'show-mod-actions'].forEach(configureToggler);
+
+configureToggler('combine-messages', () => document.getElementById('settings-combine-messages').parentNode.nextElementSibling.classList.toggle('hidden', !Settings.get('combine-messages')));
+if (Settings.get('combine-messages')) {
+	document.getElementById('settings-combine-messages').parentNode.nextElementSibling.classList.remove('hidden');
+}
+
 configureToggler('inline-images', () => document.getElementById('settings-inline-images').parentNode.nextElementSibling.classList.toggle('hidden', !Settings.get('inline-images')));
 if (Settings.get('inline-images')) {
 	document.getElementById('settings-inline-images').parentNode.nextElementSibling.classList.remove('hidden');
@@ -135,6 +141,7 @@ document.getElementById('settings-inline-images-height').addEventListener('input
 		Settings.set('inline-images-height', height + 'vh');
 	}
 });
+
 configureToggler('unfurl-twitter', () => {
 	if (typeof twttr == 'undefined') {
 		var twitterScript = document.createElement('script');
@@ -208,7 +215,7 @@ function handleChat(channel, userstate, message, self) {
 			var counterContainer = document.createElement('span'),
 				counter = document.createElement('span');
 			counterContainer.className = 'counter';
-			counterContainer.innerHTML = '&times; ';
+			if(Settings.get('combine-messages-left')) counterContainer.classList.add('float-left');
 			counterContainer.appendChild(counter);
 			counter.textContent = '1';
 			matchedMessage.appendChild(counterContainer);

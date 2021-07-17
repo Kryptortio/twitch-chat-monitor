@@ -39,7 +39,10 @@
           <label><input type="checkbox" id="settings-smooth-scroll"/> Smooth scrolling</label>
           <div class="subfield hidden"><label>Time allowed for message to appear: <input type="number" size="5" max="10000" min="1" id="settings-smooth-scroll-duration"/> milliseconds</label></div>
         </div>
-        <div><label><input type="checkbox" id="settings-combine-messages"/> Combine messages with the same content</label></div>
+        <div>
+			<label><input type="checkbox" id="settings-combine-messages"/> Combine messages with the same content</label>
+			<div class="subfield hidden"><label>Left side: <input type="checkbox" id="settings-combine-messages-left"/></label></div>
+		</div>
       </div>
       <div>
         <h3>Message Handling</h3>
@@ -95,6 +98,7 @@ var defaultSettings = {
   'smooth-scroll': true,
   'smooth-scroll-duration': 1000,  // Time in milliseconds allowed for a message to appear
   'combine-messages': false,
+  'combine-messages-left': false,
   'format-urls': true,
   'shorten-urls': true,
   'inline-images': true,
