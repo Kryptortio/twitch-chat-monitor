@@ -374,17 +374,6 @@ function createChatLine(userstate, message) {
 		chatName = document.createElement('span'),
 		chatMessage = document.createElement('span');
 
-	if (Settings.get('timestamps') != '') {
-		var formats = {
-			'short24': (now) => now.toLocaleTimeString('en-GB').replace(/:\d\d$/, ''),
-			'long24': (now) => now.toLocaleTimeString('en-GB'),
-			'short12': (now) => now.toLocaleTimeString('en-US').replace(/:\d\d /, ' ').replace(/^(\d):/, '0$1:'),
-			'long12': (now) => now.toLocaleTimeString('en-US').replace(/^(\d):/, '0$1:')
-		};
-		chatTimestamp.className = 'timestamp';
-		chatTimestamp.textContent = formats[Settings.get('timestamps')](new Date());
-		chatLine.appendChild(chatTimestamp);
-	}
 	chatName.className = 'chat-user';
 	if (userstate.mod) {
 		chatName.classList.add('moderator');
@@ -412,6 +401,21 @@ function createChatLine(userstate, message) {
 	return chatLine;
 }
 
+function prependTimestamp(parentNode) {
+	if (Settings.get('timestamps') != '') {
+		let chatTimestamp = document.createElement('span');
+		var formats = {
+			'short24': (now) => now.toLocaleTimeString('en-GB').replace(/:\d\d$/, ''),
+			'long24': (now) => now.toLocaleTimeString('en-GB'),
+			'short12': (now) => now.toLocaleTimeString('en-US').replace(/:\d\d /, ' ').replace(/^(\d):/, '0$1:'),
+			'long12': (now) => now.toLocaleTimeString('en-US').replace(/^(\d):/, '0$1:')
+		};
+		chatTimestamp.className = 'timestamp';
+		chatTimestamp.textContent = formats[Settings.get('timestamps')](new Date());
+		parentNode.prepend(chatTimestamp);
+	}
+}
+
 function addNotice(message) {
 	var chatLine = document.createElement('div');
 	chatLine.textContent = message;
@@ -421,6 +425,7 @@ function addNotice(message) {
 
 function addMessage(chatLine) {
 	chat.appendChild(chatLine);
+	prependTimestamp(chatLine);
 	// Calculate height for smooth scrolling
 	scrollReference = scrollDistance += chatLine.scrollHeight;
 	if (!Settings.get('new-messages-on-top') && !Settings.get('smooth-scroll')) {
