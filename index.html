@@ -16,7 +16,7 @@
       <h2>Settings</h2>
       <div>
         <h3>Twitch</h3>
-        <div><form action="#"><label>Twitch channel: <input type="text" id="settings-channel" required="required"/></label> <input type="submit" value="Join"/></form></div>
+        <div><form action="#"><label>Twitch channel: <input type="text" id="settings-channel" required="required" onchange="let matches = this.value.match(/twitch\.tv\/([a-zA-Z0-9][\w]{2,24})/); this.value= matches ? matches[1] : this.value;"/></label> <input type="submit" value="Join"/></form></div>
       </div>
       <div>
         <h3>Style</h3>
