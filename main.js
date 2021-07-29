@@ -435,6 +435,7 @@ function addNotice(message) {
 function addMessage(chatLine) {
 	chat.appendChild(chatLine);
 	prependTimestamp(chatLine);
+	chatLine.onclick = function(e) {displayMessagePopup(this, e);};
 	// Calculate height for smooth scrolling
 	scrollReference = scrollDistance += chatLine.scrollHeight;
 	if (!Settings.get('new-messages-on-top') && !Settings.get('smooth-scroll')) {
@@ -456,6 +457,20 @@ function deleteMessage(message) {
 	message.parentNode.style.height = (message.parentNode.scrollHeight - 7) + 'px'; // 2 x 3px padding + 1px border = 7
 	message.textContent = '<Message deleted>';
 	message.classList.add('deleted');
+}
+
+let messagePopup = document.getElementById('msgPopup'), messagePopupContainer = document.getElementById('msgPopup-container');
+messagePopupContainer.onclick= function() {this.style.display='none';};
+messagePopup.onclick= function(e) {e.stopPropagation();};
+function displayMessagePopup(sourceMessage, e) {
+	messagePopupContainer.style.display = "block";
+	messagePopup.innerHTML = sourceMessage.outerHTML;
+	let maxY = window.innerHeight - messagePopup.offsetHeight;
+	let maxX = window.innerWidth - messagePopup.offsetWidth;
+	let messagePopupXPos = e.pageX < maxX ? e.pageX : maxX;
+	let messagePopupYPos = e.pageY < maxY ? e.pageY : maxY;
+	messagePopup.style.top = messagePopupYPos + 'px';
+	messagePopup.style.left = messagePopupXPos + 'px';
 }
 
 /*
