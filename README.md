@@ -13,24 +13,24 @@ Added features
 * Cross out messages before joining new channel
 * Option to embed twitch chat on the side (enabling replying to chat as well) https://dev.twitch.tv/docs/embed/chat
 
-Buggfixes
+Bugfixes
 * Sometimes clicks pass through settings window
 * Fix support for non a-z0-9 chars in messages
 * Prevent multiple deletes of same message
 
 Further ideas
 * Pause button
-* Some kind of logging (per user, saving as raw text with a button to show or with the posibility of saving as CSV)
+* Some kind of logging (per user, saving as raw text with a button to show or with the possibility of saving as CSV)
 * Url parameters to chose things like channel
 * Export/import settings
 * Tabs (multiple channels)
 * Shorten multiple repeated words
-* Investigate bugg where messages do not get deleted (eninging up with thusands), possibly related to page not having focus
+* Investigate bug where messages do not get deleted (ending up with thousands), possibly related to page not having focus
 * Option to set max messages and add scroll bar
 * Option to have messages side by side instead of fading "spammy" messages (https://chitchat.ma.pe/)
 * Try to use the combo messages to filter e.g. [user] has been gifted a sub
 * Underline for @username
-* Improve fade logic further to catch more spam (maybe ignore more short messages or ignore charachters like $!,.-:€0-9)
+* Improve fade logic further to catch more spam (maybe ignore more short messages or ignore characters like $!,.-:€0-9)
 
 
 
