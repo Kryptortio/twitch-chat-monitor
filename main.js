@@ -410,8 +410,8 @@ function prependTimestamp(parentNode) {
 			'short12': (now) => now.toLocaleTimeString('en-US').replace(/:\d\d /, ' ').replace(/^(\d):/, '0$1:'),
 			'long12': (now) => now.toLocaleTimeString('en-US').replace(/^(\d):/, '0$1:')
 		};
-		chatTimestamp.className = 'timestamp';
-		chatTimestamp.textContent = formats[Settings.get('timestamps')](new Date());
+		chatTimestamp.className = 'timestamp' + (Settings.get('timestamps').match(/r$/) ? ' float-right' : '');
+		chatTimestamp.textContent = formats[Settings.get('timestamps').replace(/r$/, '')](new Date());
 		parentNode.prepend(chatTimestamp);
 	}
 }
