@@ -201,9 +201,9 @@ window.requestAnimationFrame(scrollUp);
 /** Chat event handling **/
 function handleChat(channel, userstate, message, self) {
 	// If enabled, combine messages instead of adding a new message
-	var id = 'message-' + message.toLowerCase().replace(/[^a-z0-9:]/g, '');
-	if (Settings.get('combine-messages') && document.getElementById(id)) {
-		var matchedMessage = document.getElementById(id);
+	let filteredMessage = message.replace(/["\\]/g, '\\$&'); 
+	let matchedMessage = document.querySelector('div[data-msg="'+filteredMessage+'"]');
+	if (Settings.get('combine-messages') && matchedMessage) {
 		if (!matchedMessage.counter) {
 			var counterContainer = document.createElement('span'),
 				counter = document.createElement('span');
@@ -222,7 +222,7 @@ function handleChat(channel, userstate, message, self) {
 	}
 	var chatLine = createChatLine(userstate, message);
 	if (Settings.get('combine-messages')) {
-		chatLine.id = id;
+		chatLine.dataset.msg = filteredMessage;
 	}
 
 	// Deal with loading user-provided inline images
