@@ -75,7 +75,7 @@ client.addListener('clearchat', (channel) => {
 });
 
 client.connect();
-
+updateEmbededTwitchChat();
 
 /** Interface interactions **/
 document.getElementById('settings-wheel').addEventListener('click', () => {
@@ -91,6 +91,7 @@ document.getElementById('settings-channel').form.addEventListener('submit', (e) 
 		client.leave(ensureHash(Settings.get('channel')));
 		Settings.set('channel', channel);
 		client.join(ensureHash(channel));
+		updateEmbededTwitchChat();
 	}
 	e.preventDefault();
 });
@@ -122,6 +123,9 @@ document.getElementById('settings-smooth-scroll-duration').addEventListener('inp
 		Settings.set('smooth-scroll-duration', duration);
 	}
 });
+
+configureToggler('embed-twitch-chat', (e) => updateEmbededTwitchChat());
+
 // Message Handling
 ['combine-messages', 'format-urls', 'shorten-urls', 'unfurl-youtube', 'show-subscriptions', 'show-bits', 'show-mod-actions'].forEach(configureToggler);
 configureToggler('inline-images', () => document.getElementById('settings-inline-images').parentNode.nextElementSibling.classList.toggle('hidden', !Settings.get('inline-images')));
@@ -366,6 +370,28 @@ function configureToggler(key, callback) {
 		}
 	});
 }
+
+function updateEmbededTwitchChat() {
+	let tcIframe = document.getElementById('twitch-chat-embed');
+	let settingsWheel = document.getElementById('settings-wheel');
+	let settingsMenu = document.getElementById('settings');
+	if(Settings.get('embed-twitch-chat')) {		
+		tcIframe.classList.remove('hidden');
+		chatContainer.classList.add('twitch-chat-embed');
+		settingsWheel.classList.add('twitch-chat-embed');
+		settingsMenu.classList.add('twitch-chat-embed');
+		tcIframe.src = 'https://www.twitch.tv/embed/' + 
+						Settings.get('channel') + 
+						'/chat?parent=' + 
+						document.location.host;
+	} else {
+		tcIframe.classList.add('hidden');
+		chatContainer.classList.remove('twitch-chat-embed');
+		settingsWheel.classList.remove('twitch-chat-embed');
+		settingsMenu.classList.remove('twitch-chat-embed');
+		return;
+	}
+}	
 
 function createChatLine(userstate, message) {
 	// <div><span class="chat-user moderator">$username</span><span id="$msg-id">$message</span></div>

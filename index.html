@@ -40,6 +40,7 @@
           <div class="subfield hidden"><label>Time allowed for message to appear: <input type="number" size="5" max="10000" min="1" id="settings-smooth-scroll-duration"/> milliseconds</label></div>
         </div>
         <div><label><input type="checkbox" id="settings-combine-messages"/> Combine messages with the same content</label></div>
+        <div><label><input type="checkbox" id="settings-embed-twitch-chat"/> Add embeded Twitch chat (not allowed without webserver)</label></div>
       </div>
       <div>
         <h3>Message Handling</h3>
@@ -84,6 +85,7 @@
     <div id="chat-container">
       <div id="chat"></div>
     </div>
+	<iframe id="twitch-chat-embed" src="" class="hidden"></iframe>
 
     <!-- Obtained from https://gitcdn.xyz/repo/tmijs/cdn/master/latest/1.x/tmi.min.js, which comes from https://github.com/tmijs/tmi.js -->
     <script src="tmi.min.js"></script>
@@ -95,6 +97,7 @@ var defaultSettings = {
   'smooth-scroll': true,
   'smooth-scroll-duration': 1000,  // Time in milliseconds allowed for a message to appear
   'combine-messages': false,
+  'embed-twitch-chat': false,
   'format-urls': true,
   'shorten-urls': true,
   'inline-images': true,
