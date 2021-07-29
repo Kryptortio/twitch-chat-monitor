@@ -86,13 +86,15 @@ document.getElementById('settings-wheel').addEventListener('click', () => {
 // Twitch
 document.getElementById('settings-channel').value = Settings.get('channel');
 document.getElementById('settings-channel').form.addEventListener('submit', (e) => {
+	var prevChannel = Settings.get('channel');
 	var channel = document.getElementById('settings-channel').value;
-	if (channel != '') {
-		client.leave(ensureHash(Settings.get('channel')));
+	if (channel != prevChannel && channel != '') {
+		client.leave(ensureHash(prevChannel));
 		// Cross out each channel message before joining new one
 		document.querySelectorAll('#chat > div').forEach(function(e) {e.style.textDecoration='line-through'});
 		Settings.set('channel', channel);
 		client.join(ensureHash(channel));
+		resetBTTVFFZ();
 	}
 	e.preventDefault();
 });
@@ -125,7 +127,7 @@ document.getElementById('settings-smooth-scroll-duration').addEventListener('inp
 	}
 });
 // Message Handling
-['combine-messages-left','fade-messages-dump', 'format-urls', 'shorten-urls', 'unfurl-youtube', 'show-subscriptions', 'show-bits', 'show-mod-actions'].forEach(configureToggler);
+['combine-messages-left','fade-messages-dump', 'format-urls', 'shorten-urls', 'unfurl-youtube', 'show-subscriptions', 'show-bits', 'show-mod-actions', 'external-emotes'].forEach(configureToggler);
 
 configureToggler('combine-messages', () => document.getElementById('settings-combine-messages').parentNode.nextElementSibling.classList.toggle('hidden', !Settings.get('combine-messages')));
 if (Settings.get('combine-messages')) {
@@ -213,7 +215,9 @@ window.requestAnimationFrame(scrollUp);
 
 
 /** Chat event handling **/
+let roomId;
 function handleChat(channel, userstate, message, self) {
+	roomId = userstate['room-id'] ? userstate['room-id'] : roomId;
 	// If enabled, combine messages instead of adding a new message
 	let filteredMessage = message.replace(/["\\]/g, '\\$&'); 
 	let matchedMessage = document.querySelector('div[data-msg="'+filteredMessage+'"]');
@@ -519,8 +523,96 @@ function formatMessage(text, emotes) {
 	var message = text.split('');
 	message = formatEmotes(message, emotes);
 	message = formatLinks(message, text);
-	return htmlEntities(message).join('');
+	return formatEmotesExternal(htmlEntities(message).join(''));
 }
+
+var extEmoteMap = {}, 
+	bttvResponse, bttvFailed, bttvReady,
+	bttvgResponse,  bttvgFailed, bttvgReady,
+	ffzResponse, ffzFailed, ffzReady;
+function formatEmotesExternal(message) {
+	if(!Settings.get('external-emotes') || !roomId) return message;
+
+	// Has bttv Json been fetched? Or has it failed?
+	if(!bttvResponse && !bttvFailed) 
+		ajaxGetRequest("https://api.betterttv.net/3/cached/users/twitch/"+roomId, 
+			(resp) => bttvResponse = resp, 
+			() => bttvFailed = true
+		);
+		
+	// Has bttv (Global) Json been fetched? Or has it failed?
+	if(!bttvgResponse && !bttvgFailed) 
+		ajaxGetRequest("https://api.betterttv.net/3/cached/emotes/global", 
+			(resp) => bttvgResponse = resp, 
+			() => bttvgFailed = true
+		);
+
+	// Has ffz Json been fetched? Or has it failed?
+	if(!ffzResponse && !ffzFailed) 
+	// https://api.frankerfacez.com/v1/room/"+Settings.get('channel')  Alternative url but does not always work
+		ajaxGetRequest("https://api.betterttv.net/3/cached/frankerfacez/users/twitch/"+roomId, 
+			(resp) => ffzResponse = resp, 
+			() => ffzFailed = true
+		);
+	
+	// Parse bttv?
+	if(bttvResponse && !bttvReady) parseBTTV(bttvResponse);
+	// Parse bttvg?
+	if(bttvgResponse && !bttvgReady) parseBTTVg(bttvgResponse);
+	// Parse ffzz?
+	if(ffzResponse && !ffzReady) parseFFZ(ffzResponse);	
+	
+	// Ready to process emotes?
+	if(!isObjectEmpty(extEmoteMap)) {
+		let messageWords = message.match(/(?<=^([^"]|"[^"]*")*)(\w+)/g);  // Words without " in front (avoid collisions)
+		if(messageWords) {
+			let wordsToReplace = {};
+			for( const word of messageWords) {
+				if(word in extEmoteMap){ 
+					wordsToReplace[word] = extEmoteMap[word]; // Save unique words that needs replacing
+				}
+			}
+			// Replace emotes with images
+			for( const word in wordsToReplace)
+				message = message.replaceAll(word, wordsToReplace[word]);
+		}
+	}
+	
+	return message;
+}
+
+function resetBTTVFFZ() {
+	bttvResponse = bttvFailed = bttvReady = ffzResponse = ffzFailed = ffzReady = null;
+	extEmoteMap = {};
+	// Reparse BTTC global?
+	if(bttvgResponse && !bttvgReady) parseBTTVg(bttvgResponse);
+}
+
+function parseBTTV(bttvResponse) { // Add bttv to extEmoteMap
+	let bttvJson = JSON.parse(bttvResponse);
+	let emotes = bttvJson.channelEmotes.concat(bttvJson.sharedEmotes);
+	for( const emote of emotes) {
+		extEmoteMap[emote.code] = '<img class="emoticon" src="https://cdn.betterttv.net/emote/' + emote.id + '/1x" alt="'+ emote.code + ' (BTTV)" title="'+ emote.code + ' (BTTV)">';
+	}
+	bttvReady = true;
+}
+
+function parseBTTVg(bttvgResponse) {// Add bttvg to extEmoteMap
+	let emotes = JSON.parse(bttvgResponse);
+	for( const emote of emotes) {
+		extEmoteMap[emote.code] = '<img class="emoticon" src="https://cdn.betterttv.net/emote/' + emote.id + '/1x" alt="'+ emote.code + ' (BTTV)" title="'+ emote.code + ' (BTTV)">';
+	}
+	bttvgReady = true;
+}
+
+function parseFFZ(ffzResponse) {// Add ffz to extEmoteMap
+	let emotes = JSON.parse(ffzResponse);
+	for( const emote of emotes) {
+		extEmoteMap[emote.code] = '<img class="emoticon" src="' + emote.images["1x"] + '" alt="' + emote.code + ' (FFZ)" title="'+ emote.code + ' (FFZ)">';
+	}
+	ffzReady = true;
+}
+
 
 function formatEmotes(text, emotes) {
 	if (!emotes) {
@@ -531,7 +623,7 @@ function formatEmotes(text, emotes) {
 			if (typeof range == 'string') {
 				range = range.split('-').map(index => parseInt(index));
 				var emote = text.slice(range[0], range[1] + 1).join('');
-				replaceText(text, `<img class="emoticon" src="https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/1.0" alt="${emote}" title="${emote}" />`, range[0], range[1]);
+				replaceText(text, `<img class="emoticon" src="https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/1.0" alt="${emote} (T)" title="${emote} (T)" />`, range[0], range[1]);
 			}
 		});
 	};
@@ -634,3 +726,30 @@ function htmlEntities(html) {
 		return character;
 	});
 }
+
+var requestQueue = {};
+function ajaxGetRequest(url, callback, failCallback) {
+	if(requestQueue[url]) return; // Only one request at a time for each url
+	requestQueue[url] = 1;
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", url, true);
+	xhr.onload = function (e) {
+		if (xhr.readyState === 4) {
+			delete requestQueue[url];
+			if (xhr.status === 200) {
+				callback(xhr.responseText);
+			} else {
+				failCallback();
+			}
+		}
+	};
+	xhr.onerror = function (e) {
+		delete requestQueue[url];
+		failCallback();
+	};
+	xhr.send(null); 
+}	
+
+function isObjectEmpty(obj) {
+	return obj && Object.keys(obj).length === 0 && obj.constructor === Object;
+}	
