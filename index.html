@@ -47,6 +47,7 @@
 			<label><input type="checkbox" id="settings-fade-messages"/> Try to fade out "spammy" messages</label>
 			<div class="subfield hidden"><label>Move other messages to top<input type="checkbox" id="settings-fade-messages-dump"/></label></div>
 		</div>
+		<div><label><input type="checkbox" id="settings-embed-twitch-chat"/> Add embeded Twitch chat (not allowed without webserver)</label></div>
       </div>
       <div>
         <h3>Message Handling</h3>
@@ -99,6 +100,7 @@
     <div id="msgPopup-container">
       <div id="msgPopup" class="chat"></div>
     </div>
+	<iframe id="twitch-chat-embed" src="" class="hidden"></iframe>
 
     <!-- Obtained from https://gitcdn.xyz/repo/tmijs/cdn/master/latest/1.x/tmi.min.js, which comes from https://github.com/tmijs/tmi.js -->
     <script src="tmi.min.js"></script>
@@ -113,6 +115,7 @@ var defaultSettings = {
   'combine-messages-left': false,
   'fade-messages': false,
   'fade-messages-dump': false,
+  'embed-twitch-chat': false,
   'format-urls': true,
   'shorten-urls': true,
   'inline-images': true,

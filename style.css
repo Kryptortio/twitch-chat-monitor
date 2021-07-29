@@ -227,6 +227,25 @@ body {
   bottom: auto;
 }
 
+#settings-wheel.twitch-chat-embed {
+  right: 21vw;
+}
+#settings.twitch-chat-embed {
+  right: 21vw;
+}
+#chat-container.twitch-chat-embed {
+  width: 80vw;
+}
+
+#twitch-chat-embed {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20vw;
+  height: 100vh;
+  border:0;
+}
+
 #fps {
   position: absolute;
   right: 15px;
