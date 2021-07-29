@@ -1,3 +1,39 @@
+# Fork notes
+
+**URL** ➔ https://kryptortio.github.io/twitch-chat-monitor/
+
+Added features
+* Implement fading of spammy messages
+* Add support for BTTV & FFZ
+* Add setting for moving combo counter to left side and highlight combo counter
+* Add timestamps for all messages
+* Add a popup when clicking a message
+* Add right side options for timestamps
+* Automatically filter twitch url if included in channel
+* Cross out messages before joining new channel
+* Option to embed twitch chat on the side (enabling replying to chat as well) https://dev.twitch.tv/docs/embed/chat
+
+Buggfixes
+* Sometimes clicks pass through settings window
+* Fix support for non a-z0-9 chars in messages
+* Prevent multiple deletes of same message
+
+Further ideas
+* Pause button
+* Some kind of logging (per user, saving as raw text with a button to show or with the posibility of saving as CSV)
+* Url parameters to chose things like channel
+* Export/import settings
+* Tabs (multiple channels)
+* Shorten multiple repeated words
+* Investigate bugg where messages do not get deleted (eninging up with thusands), possibly related to page not having focus
+* Option to set max messages and add scroll bar
+* Option to have messages side by side instead of fading "spammy" messages (https://chitchat.ma.pe/)
+* Try to use the combo messages to filter e.g. [user] has been gifted a sub
+* Underline for @username
+* Improve fade logic further to catch more spam (maybe ignore more short messages or ignore charachters like $!,.-:€0-9)
+
+
+
 # Twitch Chat Monitor
 
 A tool that monitors and displays Twitch chat channels in a bigger font, ideal for displaying on a big monitor for room-scale Twitch streaming.
