@@ -125,7 +125,7 @@ document.getElementById('settings-smooth-scroll-duration').addEventListener('inp
 	}
 });
 // Message Handling
-['combine-messages-left', 'format-urls', 'shorten-urls', 'unfurl-youtube', 'show-subscriptions', 'show-bits', 'show-mod-actions'].forEach(configureToggler);
+['combine-messages-left','fade-messages-dump', 'format-urls', 'shorten-urls', 'unfurl-youtube', 'show-subscriptions', 'show-bits', 'show-mod-actions'].forEach(configureToggler);
 
 configureToggler('combine-messages', () => document.getElementById('settings-combine-messages').parentNode.nextElementSibling.classList.toggle('hidden', !Settings.get('combine-messages')));
 if (Settings.get('combine-messages')) {
@@ -143,6 +143,11 @@ document.getElementById('settings-inline-images-height').addEventListener('input
 		Settings.set('inline-images-height', height + 'vh');
 	}
 });
+
+if (Settings.get('fade-messages')) {
+	document.getElementById('settings-fade-messages').parentNode.nextElementSibling.classList.remove('hidden');
+}
+configureToggler('fade-messages', () => document.getElementById('settings-fade-messages').parentNode.nextElementSibling.classList.toggle('hidden', !Settings.get('fade-messages')));
 
 configureToggler('unfurl-twitter', () => {
 	if (typeof twttr == 'undefined') {
@@ -223,7 +228,8 @@ function handleChat(channel, userstate, message, self) {
 			matchedMessage.appendChild(counterContainer);
 			matchedMessage.counter = counter;
 		}
-		chat.appendChild(matchedMessage);
+		chat.appendChild(matchedMessage); 
+		updateEvenOddRows();
 		matchedMessage.querySelector('.counter').classList.add('bump');
 		matchedMessage.counter.textContent++;
 		setTimeout(() => matchedMessage.querySelector('.counter').classList.remove('bump'), 150);
@@ -370,7 +376,7 @@ function configureToggler(key, callback) {
 	document.getElementById(`settings-${key}`).checked = Settings.get(key);
 	document.getElementById(`settings-${key}`).addEventListener('click', (e) => {
 		Settings.toggle(key);
-		if (callback) {
+		if (typeof callback === 'function') {
 			callback(e);
 		}
 	});
@@ -403,11 +409,39 @@ function createChatLine(userstate, message) {
 	if (highlightKeyphrases.find((phrase) => message.toLowerCase().indexOf(phrase) != -1)) {
 		chatLine.className = 'highlight';
 	}
+	
+	if (Settings.get('fade-messages') && spammyMessageCheck(chatMessage.textContent, chatName.textContent, userstate.mod)) {
+		chatLine.classList.add("spammymsg");
+		if(Settings.get('fade-messages-dump')) chatLine.classList.add("spammymsg-dump");
+	}
 
 	chatLine.appendChild(chatName);
 	chatLine.appendChild(chatMessage);
 
 	return chatLine;
+}
+
+const spammyBotList = ['Streamlabs', 'Nightbot', 'Moobot', 'StreamElements', 'AmazefulBot', 'Fossabot'];
+const emojiRegex = new RegExp(/\p{Emoji_Modifier_Base}\p{Emoji_Modifier}?|\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu) ; // https://mathiasbynens.be/notes/es-unicode-property-escapes#emoji
+function spammyMessageCheck(message, username, isMod) {
+	let filteredMsg = message
+		.replace(emojiRegex,"") // Ignore emojis
+		.replace(/[\udb40\udc00]/g,"") // Ignore "INVALID CHARACTER", related to emojis?
+		.replace(/(\s|^)@[^\s]+/g,"") // Ignore @username
+		.replace(/(\w+)([^\w]+)(\1\2){1,}(\1\2*)*/g,"$1") // Ignore repeated words
+		.replace(/^![^\s]+/,"") // Ignore !command
+		.replace(/(\?|\!)+$/g,"") // Ignore endingg !?
+		.replace(/\s\s+/g," ") // Ignore multiple spaces
+		.replace(/(^\s|\s$)/g,""); // Ignore spaces before/after
+
+	if(filteredMsg.toUpperCase() == filteredMsg && filteredMsg.toUpperCase() != filteredMsg.toLowerCase()) return true; // Uppercase only (and upercase is different from lowercase)
+	if(!filteredMsg.match(/\s/) && filteredMsg.match(/[A-Za-z]/)) return true; // No space / single word (and has a-z chars to skip asian languages)
+
+	if(spammyBotList.includes(username)) return true; // Popular bots
+	if(isMod && username.match(/bot$/i)) return true; // Channelmod with name ending with bot
+	if(filteredMsg.length <3) return true; // Short/empty message
+	//console.log('NOT FILTERED:' +message);
+	return false;
 }
 
 function prependTimestamp(parentNode) {
@@ -424,7 +458,6 @@ function prependTimestamp(parentNode) {
 		parentNode.prepend(chatTimestamp);
 	}
 }
-
 function addNotice(message) {
 	var chatLine = document.createElement('div');
 	chatLine.textContent = message;
@@ -448,6 +481,7 @@ function addMessage(chatLine) {
 		chat.firstChild.remove();
 		chat.firstChild.remove();
 	}
+	updateEvenOddRows();
 }
 
 function deleteMessage(message) {
@@ -553,6 +587,22 @@ function formatLinks(text, originalText) {
 		replaceText(text, replacement, match.index, match.index + match[0].length - 1);
 	}
 	return text;
+}
+
+function updateEvenOddRows() { //if(Settings.get('fade-messages-dump')) 
+	let chatLines = Settings.get('fade-messages-dump') ? 
+		Array.prototype.concat.call(...document.querySelectorAll('#chat > div.spammymsg'), ...document.querySelectorAll('#chat > div:not(.spammymsg)')) 
+		: document.querySelectorAll('#chat > div');
+	let oddLine = false, c = chatLines.length;	
+	while(c--) {
+		if(oddLine) {
+			chatLines[c].classList.add('oddline'); 
+			oddLine = false;
+		} else {
+			chatLines[c].classList.remove('oddline');
+			oddLine = true;
+		}
+	}
 }
 
 function ensureHash(text) {

@@ -43,6 +43,10 @@
 			<label><input type="checkbox" id="settings-combine-messages"/> Combine messages with the same content</label>
 			<div class="subfield hidden"><label>Left side: <input type="checkbox" id="settings-combine-messages-left"/></label></div>
 		</div>
+		<div>
+			<label><input type="checkbox" id="settings-fade-messages"/> Try to fade out "spammy" messages</label>
+			<div class="subfield hidden"><label>Move other messages to top<input type="checkbox" id="settings-fade-messages-dump"/></label></div>
+		</div>
       </div>
       <div>
         <h3>Message Handling</h3>
@@ -95,7 +99,6 @@
       <div id="msgPopup" class="chat"></div>
     </div>
 
-</div>
     <!-- Obtained from https://gitcdn.xyz/repo/tmijs/cdn/master/latest/1.x/tmi.min.js, which comes from https://github.com/tmijs/tmi.js -->
     <script src="tmi.min.js"></script>
     <script>
@@ -107,6 +110,8 @@ var defaultSettings = {
   'smooth-scroll-duration': 1000,  // Time in milliseconds allowed for a message to appear
   'combine-messages': false,
   'combine-messages-left': false,
+  'fade-messages': false,
+  'fade-messages-dump': false,
   'format-urls': true,
   'shorten-urls': true,
   'inline-images': true,

@@ -43,7 +43,12 @@ body {
   border-bottom: #444 solid 1px;
   border-bottom-color: var(--separator-color);
 }
-.chat > div:nth-child(odd) {
+
+.spammymsg-dump {
+  order: 1 !important;
+}
+
+.chat > div.oddline {
   background-color: #111;
   background-color: var(--odd-background-color);
 }
@@ -166,6 +171,10 @@ body {
 .chat .counter.bump {
   transition: 0.1s;
   font-size: 150%;
+}
+
+.chat .spammymsg {
+  opacity: 0.3;
 }
 
 #msgPopup-container {
