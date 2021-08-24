@@ -12,6 +12,7 @@ Added features
 * Automatically filter twitch url if included in channel
 * Cross out messages before joining new channel
 * Option to embed twitch chat on the side (enabling replying to chat as well) https://dev.twitch.tv/docs/embed/chat
+* Channel can be added to url using ?c=[channelname]
 
 Bugfixes
 * Sometimes clicks pass through settings window
