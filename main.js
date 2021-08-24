@@ -7,6 +7,7 @@ var chat = document.getElementById('chat'),
 	bitLevels = [ 10000, 1000, 500, 100, 1 ],
 	frames = 0,
 	fpsInterval,
+	urlChannel = (document.location.href.match(/c=([A-Za-z0-9_]+)/) || [null])[1],
 	lastFrameReset;
 
 
@@ -51,7 +52,7 @@ var options = {
 		secure: true,
 		reconnect: true
 	},
-	channels: [ ensureHash(Settings.get('channel')) ]
+	channels: [ ensureHash(urlChannel || Settings.get('channel')) ]
 };
 var client = new tmi.client(options);
 client.addListener('message', handleChat);
